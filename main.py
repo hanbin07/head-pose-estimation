@@ -11,6 +11,8 @@ https://github.com/yinguobing/head-pose-estimation
 from argparse import ArgumentParser
 
 import cv2
+import pandas as pd
+import datetime
 
 from mark_detector import MarkDetector
 from pose_estimator import PoseEstimator
@@ -50,6 +52,14 @@ if __name__ == '__main__':
 
     # 4. Measure the performance with a tick meter.
     tm = cv2.TickMeter()
+
+    pose_00_list = []
+    pose_01_list = []
+    pose_02_list = []
+
+    #pose_10_list = []
+    #pose_11_list = []
+    #pose_12_list = []
 
     # Now, let the frames flow.
     while True:
@@ -95,7 +105,18 @@ if __name__ == '__main__':
                 frame, pose[0], pose[1], color=(0, 255, 0))
 
             # Do you want to see the head axes?
-            # pose_estimator.draw_axes(frame, pose[0], pose[1])
+            pose_estimator.draw_axes(frame, pose[0], pose[1])
+            print(pose[0][0][0])
+
+            pose_00_list.append(pose[0][0][0]) #좌우
+            pose_01_list.append(pose[0][1][0]) #위아래
+            pose_02_list.append(pose[0][2][0]) #갸우뚱
+
+            # 현재 해당 데이터 안쓰고 있음 첫 인덱스의 의미를 모르겠음
+
+            #pose_10_list.append(pose[1][0])
+            #pose_11_list.append(pose[1][1])
+            #pose_12_list.append(pose[1][2])
 
             # Do you want to see the marks?
             # mark_detector.draw_marks(frame, marks, color=(0, 255, 0))
@@ -105,5 +126,16 @@ if __name__ == '__main__':
 
         # Show preview.
         cv2.imshow("Preview", frame)
+
+
         if cv2.waitKey(1) == 27:
+            df0 = pd.DataFrame(pose_00_list)
+            df1 = pd.DataFrame(pose_01_list)
+            df2 = pd.DataFrame(pose_02_list)
+
+            result3 = pd.concat([df0,df1,df2],axis=1)
+            filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+            result3.to_csv("02_pose_result\\"+filename+".csv") # 파일은 02_pose_result 에 csv 파일로 저장됩니다.
+
             break
